@@ -2,38 +2,39 @@
 interface Props {
   label: string
   disabled?: boolean
-  severity?: 'primary' | 'secondary'
+  severity?: 'primary' | 'secondary' | 'danger'
 }
 withDefaults(defineProps<Props>(), {
   label: 'Valider',
   disabled: false,
+  severity: 'primary'
 })
 
 const emit = defineEmits(['onclick'])
 
-const onclick = () => {
+const handleClick = () => {
   emit('onclick')
 }
-function getSeverity(data: any | null) {
-  if (data == null || data.trim().length == 0) return primary
-  switch (data.trim()) {
-    case 'primary':
-      return primary
-    case 'secondary':
-      return secondary
-  }
+
+const severityClasses = {
+  primary: 'bg-accent text-[#1A1006] hover:bg-[#FF8C4D]',
+  secondary: 'bg-surface text-text border border-border hover:bg-surface-hover',
+  danger: 'bg-transparent text-danger border border-danger hover:bg-danger-soft'
 }
-const primary = 'bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-300'
-const secondary = 'bg-gray-800 hover:bg-gray-700 disabled:bg-gray-500'
 </script>
 
 <template>
   <button
     type="button"
     :disabled="disabled"
-    :class="getSeverity(severity)"
-    @click="onclick"
-    class="text-white px-4 py-2 rounded-sm cursor-pointer"
+    :class="[severityClasses[severity], 'transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer font-medium']"
+    :style="{
+      padding: '9px 16px',
+      borderRadius: '8px',
+      fontSize: '13px',
+      border: severity === 'primary' ? '1px solid transparent' : '1px solid',
+    }"
+    @click="handleClick"
   >
     {{ label }}
   </button>

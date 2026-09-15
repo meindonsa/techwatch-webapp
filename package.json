@@ -15,7 +15,6 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@meindonsa/techwatch-api": "^0.0.4",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
     "pinia": "^3.0.4",

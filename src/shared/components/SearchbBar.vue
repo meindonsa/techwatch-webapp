@@ -8,17 +8,18 @@ const searchKey = ref('')
 const onSearching = (): void => {
   useFilter.search(searchKey.value.trim())
 }
-
 </script>
 
 <template>
-  <input
-    type="text"
-    v-model="searchKey"
-    @input.prevent="onSearching"
-    class="w-100 px-3 py-2 border border-white text-heading text-sm rounded-sm placeholder:text-gray-500 text-white"
-    placeholder="Search"
-  />
+  <div class="flex-1 max-w-[420px]">
+    <input 
+      type="text" 
+      v-model="searchKey" 
+      @input="onSearching"
+      class="w-full bg-surface border border-border text-text p-2 px-3 rounded-lg text-sm outline-none focus:border-accent transition-colors placeholder:text-text-faint"
+      placeholder="Rechercher un article, une source…"
+    />
+  </div>
 </template>
 
 <style scoped></style>

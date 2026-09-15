@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { SourceService } from '@/shared/api/SourceService.ts'
-import type { SourceView } from '@meindonsa/techwatch-api/models'
+import { SourceService, type Feed } from '@/shared/api/SourceService.ts'
 import SourceForm from '@/features/home/SourceForm.vue'
 import { isUrl } from '@/shared/service/Utils.ts'
 
 const loading = ref(false)
 const errorMessage = ref<null | string>(null)
 const showSource = ref(false)
-const sources = ref<SourceView[]>([])
+const sources = ref<Feed[]>([])
 const retrieveSources = async () => {
   loading.value = true
-  const body = {
-    size: 10,
-    index: 0,
+  try {
+    const { data } = await SourceService.retrieveSources()
+    if (data) sources.value = data
+  } catch (e: any) {
+    console.error('Erreur lors de la récupération des sources :', e)
+  } finally {
+    loading.value = false
   }
-  const { data } = await SourceService.retrieveSources(body)
-  if (data) sources.value = data.objects
-  loading.value = false
 }
 
 const hideForm = () => {
@@ -41,7 +41,7 @@ const onSubmit = (event: any) => {
       retrieveSources()
     })
     .catch((error) => {
-      errorMessage.value = error?.response?.data?.message
+      errorMessage.value = error?.response?.data?.message || 'Erreur lors de la création'
       setTimeout(() => {
         errorMessage.value = null;
       }, 2000)
@@ -83,11 +83,11 @@ onMounted(() => {
       >
         <li
           v-for="source of sources"
-          :key="source?.fid"
+          :key="source?.id"
           class="text-sm text-body truncate mb-2 hover:text-indigo-500 transition ease-in-out duration-300"
         >
           <a
-            :href="source?.url"
+            :href="source?.feed_url"
             target="_blank"
             class="cursor-pointer hover:underline hover:underline-offset-4"
           >
