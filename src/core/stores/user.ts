@@ -36,6 +36,7 @@ export const useUserStore = defineStore('user', () => {
     if (refreshToken.value) {
       try {
         await UserService.logout(refreshToken.value)
+        router.push('/login');
       } catch (e) {
         console.error('Logout error:', e)
       }
