@@ -7,7 +7,9 @@ import { createPinia } from 'pinia'
 
 const app = createApp(App)
 
-app.use(router)
+// IMPORTANT: Pinia must be installed BEFORE the router 
+// so that the router guards can access the stores.
 app.use(createPinia())
+app.use(router)
 
 app.mount('#app')
