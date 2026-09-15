@@ -24,7 +24,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         {
-          path: '', // L'URL / affichera HomeView
+          path: '',
           name: 'home',
           component: HomeView,
           meta: { requiresAuth: true },
@@ -37,7 +37,7 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: 'article/:fid',
+          path: 'article/:id',
           name: 'article',
           props: true,
           component: () => import('@/features/articles/Article.vue'),
@@ -53,14 +53,12 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   
   if (requiresAuth && !userStore.isAuthenticated) {
-    // On redirige vers login UNIQUEMENT si on n'est pas déjà sur login
     if (to.name !== 'login') {
       next({ name: 'login' })
     } else {
       next()
     }
   } else if (!requiresAuth && userStore.isAuthenticated) {
-    // On redirige vers home UNIQUEMENT si on n'est pas déjà sur home
     if (to.name !== 'home') {
       next({ name: 'home' })
     } else {

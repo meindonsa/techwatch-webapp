@@ -1,27 +1,46 @@
 import { defineStore } from 'pinia'
-import { computed, type Ref, ref } from 'vue'
+import { ref, computed, type Ref } from 'vue'
+import { ArticleService, type Article } from '@/shared/api/ArticleService.ts'
 
 export const useArticleStore = defineStore('article', () => {
-  const articles: Ref<any[]> = ref([])
-  const selectedArticleId: Ref<string | null> = ref(null)
-  const data = computed(() => {
-    console.log(articles.value)
-    const a = articles.value.find((item: any): boolean => item.fid == selectedArticleId.value)
-    console.log(a);
-    return a
+  const articles = ref<Article[]>([])
+  const selectedArticleId = ref<number | null>(null)
+
+  const currentArticle = computed(() => {
+    if (!selectedArticleId.value) return null
+    return articles.value.find(a => a.id === selectedArticleId.value) || null
   })
 
-  const setAll = (articles: any): void => {
-    articles.value = articles
+  const setArticles = (data: Article[]) => {
+    articles.value = data
   }
 
-  const setSelected = (fid: string): void => {
-    selectedArticleId.value = fid
-    console.log(selectedArticleId.value)
-    console.log(articles.value)
-    const item = articles.value.find((item: any): boolean => item.fid == selectedArticleId.value)
-    console.log(item)
+  const setSelectedId = (id: number) => {
+    selectedArticleId.value = id
   }
 
-  return { data, articles, selectedArticleId, setSelected, setAll }
+  async function fetchArticleById(id: number): Promise<Article | null> {
+    try {
+      const { data } = await ArticleService.retrieveArticle(id)
+      if (data) {
+        // Add to list to avoid future requests
+        if (!articles.value.find(a => a.id === id)) {
+          articles.value.push(data)
+        }
+        return data
+      }
+    } catch (e) {
+      console.error('Error fetching article:', e)
+    }
+    return null
+  }
+
+  return { 
+    articles, 
+    selectedArticleId, 
+    currentArticle, 
+    setArticles, 
+    setSelectedId, 
+    fetchArticleById 
+  }
 })

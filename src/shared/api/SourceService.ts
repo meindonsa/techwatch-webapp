@@ -3,12 +3,13 @@ import type { AxiosResponse } from 'axios'
 import { useUserStore } from '@/core/stores/user.ts'
 
 export interface Feed {
-    id: number
-    type: 'rss' | 'atom'
-    feed_url: string
-    original_url: string
-    name: string
-    created_at: string | Date
+  id: number
+  type: 'rss' | 'atom'
+  feed_url: string
+  original_url: string
+  name: string
+  article_count: number
+  created_at: string | Date
 }
 
 export interface NewSource {
