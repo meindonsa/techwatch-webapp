@@ -22,9 +22,13 @@ const { formatDate } = datePipe()
       </h3>
       
       <div class="flex items-center gap-2 text-[12.5px] text-text-muted flex-wrap">
-        <span class="text-text-faint">{{ article.source_name || 'Source inconnue' }}</span>
+        <!-- Source with Dot (The a-ha moment for sm.png) -->
+        <span class="flex items-center gap-1.5 text-text-faint">
+          <span class="w-1.5 h-1.5 rounded-full bg-new shrink-0"></span>
+          {{ article.source_name || 'Source inconnue' }}
+        </span>
         <span class="hidden sm:inline">•</span>
-        <span>{{ article.author || 'Inconnu' }}</span>
+        <span class="text-text">{{ article.author || 'Inconnu' }}</span>
         <span class="hidden sm:inline">•</span>
         <span>{{ formatDate(article.fetched_at, 'mediumDate') }}</span>
       </div>

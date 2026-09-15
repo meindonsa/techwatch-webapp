@@ -46,13 +46,10 @@ const seeAll = () => {
 
 <template>
   <div class="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Mobile Sources Strip: Hidden on md screens -->
-    <div class="hidden md:hidden mb-8">
-      <Sources mode="strip" />
-    </div>
-
+    <!-- Mobile Sources Strip: REMOVED as per request to show sources on articles instead -->
+    
     <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
-      <!-- Main Feed: Takes 12 cols on mobile, 8 or 9 on desktop -->
+      <!-- Main Feed -->
       <main class="md:col-span-8 lg:col-span-9">
         <h1 class="font-serif text-[26px] font-medium text-text mb-6 tracking-tight">
           Accueil {{ searchValue ? `: ${searchValue}` : '' }}
@@ -73,7 +70,7 @@ const seeAll = () => {
         </div>
       </main>
 
-      <!-- Desktop Sources Rail: Hidden on mobile, shows as 4 or 3 cols on desktop -->
+      <!-- Desktop Sources Rail -->
       <aside class="hidden md:block md:col-span-4 lg:col-span-3">
         <Sources mode="rail" />
       </aside>
