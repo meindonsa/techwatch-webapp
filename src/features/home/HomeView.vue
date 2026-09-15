@@ -18,6 +18,7 @@ const pagination = ref({
   page: 0,
   size: 5,
 })
+
 const retrieveArticles = async (pageIndex = 0, searchKey: null | string = null) => {
   loading.value = true
   try {
@@ -44,21 +45,40 @@ const seeAll = () => {
 </script>
 
 <template>
-  <main class="maw-w-screen w-screen min-h-screen bg-gray-900 py-20 px-10">
-    <h1 class="text-2xl font-bold text-white mb-10">Accueil {{ searchValue }}</h1>
-    <div class="flex gap-5">
-      <div class="w-[70%]">
-        <Skeleton v-if="loading" :count="5" />
-        <TransitionGroup>
-          <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
-        </TransitionGroup>
-        <div class="text-center py-5">
-          <Button label="Tout voir" @click="seeAll" severity="secondary" />
-        </div>
-      </div>
-      <div class="w-[30%]">
-        <Sources />
-      </div>
+  <div class="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Mobile Sources Strip: Hidden on md screens -->
+    <div class="hidden md:hidden mb-8">
+      <Sources mode="strip" />
     </div>
-  </main>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
+      <!-- Main Feed: Takes 12 cols on mobile, 8 or 9 on desktop -->
+      <main class="md:col-span-8 lg:col-span-9">
+        <h1 class="font-serif text-[26px] font-medium text-text mb-6 tracking-tight">
+          Accueil {{ searchValue ? `: ${searchValue}` : '' }}
+        </h1>
+        
+        <div class="border-t border-border">
+          <Skeleton v-if="loading" :count="5" />
+          <TransitionGroup v-else>
+            <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
+          </TransitionGroup>
+          
+          <div v-if="articles.length > 0" class="text-center py-8">
+            <Button label="Tout voir" @click="seeAll" severity="secondary" />
+          </div>
+          <div v-else-if="!loading" class="text-center py-20 text-text-muted">
+            Aucun article trouvé.
+          </div>
+        </div>
+      </main>
+
+      <!-- Desktop Sources Rail: Hidden on mobile, shows as 4 or 3 cols on desktop -->
+      <aside class="hidden md:block md:col-span-4 lg:col-span-3">
+        <Sources mode="rail" />
+      </aside>
+    </div>
+  </div>
 </template>
+
+<style scoped></style>
