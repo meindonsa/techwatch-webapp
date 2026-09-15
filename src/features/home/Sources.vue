@@ -28,7 +28,7 @@ const retrieveSources = async () => {
   }
 }
 
-const hideForm = () => {
+const toggleForm = () => {
   showSource.value = !showSource.value
 }
 
@@ -45,7 +45,7 @@ const onSubmit = (event: any) => {
 
   SourceService.createSource(req)
     .then((data) => {
-      hideForm();
+      toggleForm();
       retrieveSources()
     })
     .catch((error) => {
@@ -65,7 +65,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- MODE STRIP (Mobile) -->
+  <!-- MODE STRIP (Mobile: horizontal scroll above feed) -->
   <div v-if="mode === 'strip'" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
     <div 
       v-for="source of sources" 
@@ -76,19 +76,19 @@ onMounted(() => {
       <RouterLink :to="'/feed/' + source.id" class="hover:underline">{{ source.name }}</RouterLink>
     </div>
     <div 
-      @click="showSource = true"
+      @click="toggleForm"
       class="flex items-center gap-1.5 bg-surface border border-dashed border-border px-3 py-1.5 rounded-full text-[12.5px] text-accent whitespace-nowrap cursor-pointer hover:border-accent transition-colors"
     >
       <span>+ Ajouter une source</span>
     </div>
   </div>
 
-  <!-- MODE RAIL (Desktop) -->
+  <!-- MODE RAIL (Desktop: fixed side column) -->
   <aside v-else class="sticky top-24">
     <div class="flex items-center justify-between mb-3">
       <h2 class="text-sm font-semibold text-text-muted">Sources</h2>
       <div 
-        @click="showSource = true"
+        @click="toggleForm"
         class="w-5 h-5 rounded-sm bg-surface border border-border text-text-muted flex items-center justify-center cursor-pointer hover:border-accent hover:text-accent transition-colors text-sm"
       >
         +
@@ -96,7 +96,7 @@ onMounted(() => {
     </div>
     
     <div v-if="showSource" class="mb-4">
-      <SourceForm @onCancel="hideForm" @onSave="onSubmit($event)" />
+      <SourceForm @onCancel="toggleForm" @onSave="onSubmit($event)" />
     </div>
 
     <div v-else class="flex flex-col">

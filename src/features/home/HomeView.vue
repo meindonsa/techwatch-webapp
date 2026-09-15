@@ -46,8 +46,11 @@ const seeAll = () => {
 
 <template>
   <div class="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Mobile Sources Strip: REMOVED as per request to show sources on articles instead -->
-    
+    <!-- Sources Strip: Visible ONLY on mobile, placed ABOVE the page grid -->
+    <div class="md:hidden mb-8">
+      <Sources mode="strip" />
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
       <!-- Main Feed -->
       <main class="md:col-span-8 lg:col-span-9">

@@ -44,7 +44,6 @@ const goToPage = (page: number) => {
 watch(
   currentPage,
   (newPage) => {
-    console.log('Chargement page', newPage)
     retrieveArticles(newPage - 1)
   },
   { immediate: true },
@@ -52,22 +51,30 @@ watch(
 </script>
 
 <template>
-  <main class="maw-w-screen w-screen min-h-screen bg-gray-900 py-20 px-10">
-    <h1 class="text-2xl font-bold text-white mb-10">Accueil {{ searchValue }}</h1>
-    <div class="flex gap-5">
-      <div class="w-full">
-        <Skeleton v-if="loading" :count="5" />
-        <TransitionGroup v-if="!loading">
-          <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
-        </TransitionGroup>
+  <div class="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="font-serif text-[26px] font-medium text-text mb-6 tracking-tight">
+      Articles {{ searchValue ? `: ${searchValue}` : '' }}
+    </h1>
+    
+    <div class="border-t border-border">
+      <Skeleton v-if="loading" :count="5" />
+      <TransitionGroup v-else>
+        <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
+      </TransitionGroup>
+      
+      <div v-if="articles.length > 0" class="flex justify-center py-10">
         <Paginator
           :total-items="pagination.total"
           :items-per-page="pagination.size"
           :current-page="pagination.page"
           @change-page="handlePageChange"
         />
-        <div class="text-center py-5"></div>
+      </div>
+      <div v-else-if="!loading" class="text-center py-20 text-text-muted">
+        Aucun article trouvé.
       </div>
     </div>
-  </main>
+  </div>
 </template>
+
+<style scoped></style>
