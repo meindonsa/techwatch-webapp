@@ -3,8 +3,7 @@ import { useFilterStore } from '@/core/stores/filter.ts'
 import ArticleITem from '@/features/home/ArticleITem.vue'
 import Sources from '@/features/home/Sources.vue'
 import { computed, ref, watchEffect } from 'vue'
-import { ArticleService } from '@/shared/api/ArticleService.ts'
-import type { ArticlesView } from '@meindonsa/techwatch-api/models'
+import { ArticleService, type Article } from '@/shared/api/ArticleService.ts'
 import Button from '@/shared/components/Button.vue'
 import { useRouter } from 'vue-router'
 import Skeleton from '@/shared/components/Skeleton.vue'
@@ -13,7 +12,7 @@ const router = useRouter()
 const loading = ref(false)
 const useFilter = useFilterStore()
 const searchValue = computed(() => useFilter.searchValue)
-const articles = ref<ArticlesView[]>([])
+const articles = ref<Article[]>([])
 const pagination = ref({
   total: 0,
   page: 0,
@@ -22,11 +21,10 @@ const pagination = ref({
 const retrieveArticles = async (pageIndex = 0, searchKey: null | string = null) => {
   loading.value = true
   try {
-    const body = { size: 5, index: pageIndex, searchKey: searchKey }
-    const { data } = await ArticleService.retrieveArticles(body)
+    const { data } = await ArticleService.retrieveArticles()
     if (data) {
-      articles.value = data.objects
-      pagination.value.total = data.total
+      articles.value = data
+      pagination.value.total = data.length
       pagination.value.page = pageIndex
     }
   } catch (e) {
@@ -52,7 +50,7 @@ const seeAll = () => {
       <div class="w-[70%]">
         <Skeleton v-if="loading" :count="5" />
         <TransitionGroup>
-          <ArticleITem v-for="article in articles" :key="article?.fid" :article="article" />
+          <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
         </TransitionGroup>
         <div class="text-center py-5">
           <Button label="Tout voir" @click="seeAll" severity="secondary" />

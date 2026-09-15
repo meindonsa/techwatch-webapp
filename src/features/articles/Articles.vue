@@ -2,8 +2,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import { useFilterStore } from '@/core/stores/filter.ts'
-import type { ArticlesView } from '@meindonsa/techwatch-api/models'
-import { ArticleService } from '@/shared/api/ArticleService.ts'
+import { ArticleService, type Article } from '@/shared/api/ArticleService.ts'
 import ArticleITem from '@/features/home/ArticleITem.vue'
 import Paginator from '@/shared/components/Paginator.vue'
 import Skeleton from '@/shared/components/Skeleton.vue'
@@ -15,17 +14,16 @@ const currentPage = computed(() => Number(route.query.page) || 1)
 const loading = ref(false)
 const useFilter = useFilterStore()
 const searchValue = computed(() => useFilter.searchValue)
-const articles = ref<ArticlesView[]>([])
-const pagination = ref({ total: 0, page: 0, size: 5 })
+const articles = ref<Article[]>([])
+const pagination = ref({ total: 0, page: 0, size: 50 })
 
 const retrieveArticles = async (pageIndex = 0) => {
   loading.value = true
   try {
-    const body = { size: 5, index: pageIndex, searchKey: searchValue.value }
-    const { data } = await ArticleService.retrieveArticles(body)
+    const { data } = await ArticleService.retrieveArticles()
     if (data) {
-      articles.value = data.objects
-      pagination.value.total = data.total
+      articles.value = data
+      pagination.value.total = data.length
       pagination.value.page = pageIndex
     }
   } catch (e) {
@@ -60,7 +58,7 @@ watch(
       <div class="w-full">
         <Skeleton v-if="loading" :count="5" />
         <TransitionGroup v-if="!loading">
-          <ArticleITem v-for="article in articles" :key="article?.fid" :article="article" />
+          <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
         </TransitionGroup>
         <Paginator
           :total-items="pagination.total"
@@ -73,5 +71,3 @@ watch(
     </div>
   </main>
 </template>
-
-<style scoped></style>
