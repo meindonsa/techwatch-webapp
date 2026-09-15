@@ -4,10 +4,18 @@ import { SourceService, type Feed } from '@/shared/api/SourceService.ts'
 import SourceForm from '@/features/home/SourceForm.vue'
 import { isUrl } from '@/shared/service/Utils.ts'
 
+interface Props {
+  mode?: 'rail' | 'strip'
+}
+withDefaults(defineProps<Props>(), {
+  mode: 'rail'
+})
+
 const loading = ref(false)
 const errorMessage = ref<null | string>(null)
 const showSource = ref(false)
 const sources = ref<Feed[]>([])
+
 const retrieveSources = async () => {
   loading.value = true
   try {
@@ -57,56 +65,66 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="w-full max-w-sm p-6 bg-neutral-primary-soft border border-gray-500 rounded-base shadow-xs"
-  >
-    <h5
-      class="flex justify-between mb-4 text-xl font-semibold leading-none text-heading text-white"
+  <!-- MODE STRIP (Mobile) -->
+  <div v-if="mode === 'strip'" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+    <div 
+      v-for="source of sources" 
+      :key="source.id" 
+      class="flex items-center gap-1.5 bg-surface border border-border px-3 py-1.5 rounded-full text-[12.5px] text-text-muted whitespace-nowrap cursor-pointer hover:text-text transition-colors"
     >
-      <span>Sources</span>
-      <span class="cursor-pointer" @click="hideForm">+</span>
-    </h5>
-    <Transition>
-      <span v-if="errorMessage != null" class="text-red-500 text-sm font-light">{{
-        errorMessage
-      }}</span>
-    </Transition>
-    <div class="flow-root mt-3">
-      <SourceForm v-if="showSource" @onCancel="hideForm" @onSave="onSubmit($event)" />
-      <div class="text-center text-gray-700" v-if="loading">Chargement ...</div>
-      <TransitionGroup
-        v-if="!showSource"
-        tag="ul"
-        mode="easy-in-out"
-        role="list"
-        class="divide-default text-gray-300"
-      >
-        <li
-          v-for="source of sources"
-          :key="source?.id"
-          class="text-sm text-body truncate mb-2 hover:text-indigo-500 transition ease-in-out duration-300"
-        >
-          <a
-            :href="source?.feed_url"
-            target="_blank"
-            class="cursor-pointer hover:underline hover:underline-offset-4"
-          >
-            {{ source?.name }}
-          </a>
-        </li>
-      </TransitionGroup>
+      <span class="w-1.5 h-1.5 rounded-full bg-new shrink-0"></span>
+      <RouterLink :to="'/feed/' + source.id" class="hover:underline">{{ source.name }}</RouterLink>
+    </div>
+    <div 
+      @click="showSource = true"
+      class="flex items-center gap-1.5 bg-surface border border-dashed border-border px-3 py-1.5 rounded-full text-[12.5px] text-accent whitespace-nowrap cursor-pointer hover:border-accent transition-colors"
+    >
+      <span>+ Ajouter une source</span>
     </div>
   </div>
+
+  <!-- MODE RAIL (Desktop) -->
+  <aside v-else class="sticky top-24">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-text-muted">Sources</h2>
+      <div 
+        @click="showSource = true"
+        class="w-5 h-5 rounded-sm bg-surface border border-border text-text-muted flex items-center justify-center cursor-pointer hover:border-accent hover:text-accent transition-colors text-sm"
+      >
+        +
+      </div>
+    </div>
+    
+    <div v-if="showSource" class="mb-4">
+      <SourceForm @onCancel="hideForm" @onSave="onSubmit($event)" />
+    </div>
+
+    <div v-else class="flex flex-col">
+      <div 
+        v-for="source of sources" 
+        :key="source.id" 
+        class="flex items-center justify-between py-2 border-b border-border last:border-0 text-sm text-text hover:text-accent transition-colors cursor-pointer"
+      >
+        <RouterLink :to="'/feed/' + source.id" class="flex items-center gap-2 truncate">
+          <span class="w-1.5 h-1.5 rounded-full bg-new shrink-0"></span>
+          <span class="truncate">{{ source.name }}</span>
+        </RouterLink>
+        <span class="text-[11.5px] text-text-faint ml-2">{{ source.article_count || 0 }}</span>
+      </div>
+    </div>
+
+    <div v-if="errorMessage" class="text-red-400 text-xs mt-2 text-center">
+      {{ errorMessage }}
+    </div>
+  </aside>
 </template>
 
 <style scoped>
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

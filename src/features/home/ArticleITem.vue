@@ -8,14 +8,24 @@ const { formatDate } = datePipe()
 <template>
   <RouterLink
     :to="'article/' + article.id"
-    class="flex flex-col bg-neutral-primary-soft p-2 mb-3 border border-gray-500 transition ease-in-out duration-300 hover:border-gray-50 rounded-base shadow-xs cursor-pointer"
+    class="flex gap-3.5 p-4 border-b border-border transition-colors hover:bg-surface-hover cursor-pointer group"
   >
-    <div class="flex flex-col justify-between md:p-4 leading-normal">
-      <h5 class="mb-2 text-md font-bold text-indigo-500">
+    <!-- Article Avatar -->
+    <div class="w-[34px] h-[34px] rounded-lg bg-surface border border-border flex items-center justify-center text-[12px] font-semibold text-text-muted shrink-0">
+      {{ article.title?.substring(0, 2).toUpperCase() || '??' }}
+    </div>
+
+    <!-- Article Body -->
+    <div class="min-w-0 flex-1">
+      <h3 class="font-serif text-[17px] font-medium leading-[1.35] mb-1 group-hover:text-accent transition-colors truncate">
         {{ article.title }}
-      </h5>
-      <div class="flex justify-between w-full text-sm text-gray-500">
-        <span>Feed ID: {{ article.feed_id }} {{ ' par: ' + (article.author || "Inconnu") }}</span>
+      </h3>
+      
+      <div class="flex items-center gap-2 text-[12.5px] text-text-muted flex-wrap">
+        <span class="text-text-faint">{{ article.source_name || 'Source inconnue' }}</span>
+        <span class="hidden sm:inline">•</span>
+        <span>{{ article.author || 'Inconnu' }}</span>
+        <span class="hidden sm:inline">•</span>
         <span>{{ formatDate(article.fetched_at, 'mediumDate') }}</span>
       </div>
     </div>
