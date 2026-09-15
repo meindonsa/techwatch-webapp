@@ -42,5 +42,13 @@ export const UserService = {
 
   async logout(refreshToken: string): Promise<AxiosResponse> {
     return api.post('/auth/logout', { refreshToken })
+  },
+
+  async getProfile(): Promise<AxiosResponse<User>> {
+    return api.get('/users/me')
+  },
+
+  async updatePassword(newPassword: string): Promise<AxiosResponse> {
+    return api.patch('/users/me/password', { newPassword })
   }
 }
