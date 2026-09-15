@@ -50,5 +50,9 @@ export const UserService = {
 
   async updatePassword(newPassword: string): Promise<AxiosResponse> {
     return api.patch('/users/me/password', { newPassword })
+  },
+
+  async deleteAccount(): Promise<AxiosResponse> {
+    return api.delete('/users/me')
   }
 }
