@@ -1,19 +1,30 @@
 import api from '@/shared/api/axiosInstance.ts'
 import type { AxiosResponse } from 'axios'
-import { type PaginatedRequest, type SourceView } from '@meindonsa/techwatch-api/models'
-import { SourceApi } from '@meindonsa/techwatch-api/api'
-import { Configuration } from '@meindonsa/techwatch-api/configuration'
+import { useUserStore } from '@/core/stores/user.ts'
 
-const sourceApi = new SourceApi(new Configuration(), undefined, api)
+export interface Feed {
+    id: number
+    type: 'rss' | 'atom'
+    feed_url: string
+    original_url: string
+    name: string
+    created_at: string | Date
+}
+
+export interface NewSource {
+    url: string
+}
 
 export const SourceService = {
-  async retrieveSources(req: any): Promise<AxiosResponse> {
-    const request: PaginatedRequest = req
-    return sourceApi.retrieveSources(request)
+  async retrieveSources(): Promise<AxiosResponse<Feed[]>> {
+    const userStore = useUserStore()
+    const username = userStore.user?.username || 'guest'
+    return api.get(`/feeds/by-username/${username}`)
   },
 
-  async createSource(req: any): Promise<AxiosResponse> {
-    const request: SourceView = req;
-    return sourceApi.createSource(request)
+  async createSource(source: NewSource): Promise<AxiosResponse> {
+    const userStore = useUserStore()
+    const username = userStore.user?.username || 'guest'
+    return api.post(`/feeds/${username}`, source)
   }
 }
