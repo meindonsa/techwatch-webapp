@@ -2,6 +2,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, watch } from 'vue'
 import { useFilterStore } from '@/core/stores/filter.ts'
+import { useArticleStore } from '@/core/stores/article.ts'
 import { ArticleService, type Article } from '@/shared/api/ArticleService.ts'
 import ArticleITem from '@/features/home/ArticleITem.vue'
 import Paginator from '@/shared/components/Paginator.vue'
@@ -11,30 +12,17 @@ const route = useRoute()
 const router = useRouter()
 const currentPage = computed(() => Number(route.query.page) || 1)
 
-const loading = ref(false)
+const articleStore = useArticleStore()
 const useFilter = useFilterStore()
 const searchValue = computed(() => useFilter.searchValue)
-const articles = ref<Article[]>([])
+const articles = computed(() => articleStore.articles)
+const loading = computed(() => articleStore.loading)
 const pagination = ref({ total: 0, page: 0, size: 10 })
 
 const retrieveArticles = async (pageIndex = 0) => {
-  loading.value = true
-  try {
-    const { data } = await ArticleService.retrieveArticles({ 
-      index: pageIndex, 
-      size: pagination.value.size,
-      searchKey: searchValue.value || undefined
-    })
-    if (data) {
-      articles.value = data.objects || []
-      pagination.value.total = data.total || 0
-      pagination.value.page = pageIndex
-    }
-  } catch (e) {
-    console.error('Erreur lors de la récupération :', e)
-  } finally {
-    loading.value = false
-  }
+  const { total } = await articleStore.fetchArticles(pageIndex, pagination.value.size, searchValue.value)
+  pagination.value.total = total
+  pagination.value.page = pageIndex
 }
 
 const handlePageChange = (newPage: number) => {

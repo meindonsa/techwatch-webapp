@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { useFilterStore } from '@/core/stores/filter.ts'
+import { useArticleStore } from '@/core/stores/article.ts'
 import ArticleITem from '@/features/home/ArticleITem.vue'
 import Sources from '@/features/home/Sources.vue'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { ArticleService, type Article } from '@/shared/api/ArticleService.ts'
 import Button from '@/shared/components/Button.vue'
 import { useRouter } from 'vue-router'
 import Skeleton from '@/shared/components/Skeleton.vue'
 
 const router = useRouter()
-const loading = ref(false)
+const articleStore = useArticleStore()
 const useFilter = useFilterStore()
 const searchValue = computed(() => useFilter.searchValue)
-const articles = ref<Article[]>([])
+const articles = computed(() => articleStore.articles)
+const loading = computed(() => articleStore.loading)
 const pagination = ref({
   total: 0,
   page: 0,
@@ -20,23 +22,9 @@ const pagination = ref({
 })
 
 const retrieveArticles = async (pageIndex = 0, searchKey: null | string = null) => {
-  loading.value = true
-  try {
-    const { data } = await ArticleService.retrieveArticles({ 
-      index: pageIndex, 
-      size: pagination.value.size,
-      searchKey: searchKey || undefined
-    })
-    if (data) {
-      articles.value = data.objects || []
-      pagination.value.total = data.total || 0
-      pagination.value.page = pageIndex
-    }
-  } catch (e) {
-    console.error('Erreur lors de la récupération :', e)
-  } finally {
-    loading.value = false
-  }
+  const { total } = await articleStore.fetchArticles(pageIndex, pagination.value.size, searchKey)
+  pagination.value.total = total
+  pagination.value.page = pageIndex
 }
 
 watchEffect(() => {
@@ -61,13 +49,13 @@ const seeAll = () => {
         <h1 class="font-serif text-[26px] font-medium text-text mb-6 tracking-tight">
           Accueil {{ searchValue ? `: ${searchValue}` : '' }}
         </h1>
-        
+
         <div class="border-t border-border">
           <Skeleton v-if="loading" :count="5" />
           <TransitionGroup v-else>
             <ArticleITem v-for="article in articles" :key="article?.id" :article="article" />
           </TransitionGroup>
-          
+
           <div v-if="articles.length > 0" class="text-center py-8">
             <Button label="Tout voir" @click="seeAll" severity="secondary" />
           </div>

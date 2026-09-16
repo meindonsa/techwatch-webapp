@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './core/router'
 import { createPinia } from 'pinia'
+import { useSocketStore } from '@/core/stores/socket.ts'
 
 const app = createApp(App)
 
@@ -11,5 +12,8 @@ const app = createApp(App)
 // so that the router guards can access the stores.
 app.use(createPinia())
 app.use(router)
+
+// Initialize socket connection
+useSocketStore()
 
 app.mount('#app')
