@@ -22,10 +22,14 @@ const pagination = ref({
 const retrieveArticles = async (pageIndex = 0, searchKey: null | string = null) => {
   loading.value = true
   try {
-    const { data } = await ArticleService.retrieveArticles()
+    const { data } = await ArticleService.retrieveArticles({ 
+      index: pageIndex, 
+      size: pagination.value.size,
+      searchKey: searchKey || undefined
+    })
     if (data) {
-      articles.value = data
-      pagination.value.total = data.length
+      articles.value = data.objects || []
+      pagination.value.total = data.total || 0
       pagination.value.page = pageIndex
     }
   } catch (e) {

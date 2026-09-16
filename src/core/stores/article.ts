@@ -23,7 +23,6 @@ export const useArticleStore = defineStore('article', () => {
     try {
       const { data } = await ArticleService.retrieveArticle(id)
       if (data) {
-        // Add to list to avoid future requests
         if (!articles.value.find(a => a.id === id)) {
           articles.value.push(data)
         }

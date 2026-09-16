@@ -15,16 +15,16 @@ export interface Article {
 }
 
 export const ArticleService = {
-  async retrieveArticles(): Promise<AxiosResponse<Article[]>> {
+  async retrieveArticles(params?: { index?: number; size?: number; searchKey?: string }): Promise<AxiosResponse<any>> {
     const userStore = useUserStore()
     const username = userStore.user?.username || 'guest'
-    return api.get(`/articles/${username}/articles`)
+    return api.get(`/articles/${username}/articles`, { params })
   },
 
-  async retrieveArticlesByFeed(feedId: number): Promise<AxiosResponse<Article[]>> {
+  async retrieveArticlesByFeed(feedId: number, params?: { index?: number; size?: number }): Promise<AxiosResponse<any>> {
     const userStore = useUserStore()
     const username = userStore.user?.username || 'guest'
-    return api.get(`/articles/${username}/feed/${feedId}`)
+    return api.get(`/articles/${username}/feed/${feedId}`, { params })
   },
 
   async retrieveArticle(id: string | number): Promise<AxiosResponse<Article>> {
