@@ -15,15 +15,19 @@ const loading = ref(false)
 const useFilter = useFilterStore()
 const searchValue = computed(() => useFilter.searchValue)
 const articles = ref<Article[]>([])
-const pagination = ref({ total: 0, page: 0, size: 50 })
+const pagination = ref({ total: 0, page: 0, size: 10 })
 
 const retrieveArticles = async (pageIndex = 0) => {
   loading.value = true
   try {
-    const { data } = await ArticleService.retrieveArticles()
+    const { data } = await ArticleService.retrieveArticles({ 
+      index: pageIndex, 
+      size: pagination.value.size,
+      searchKey: searchValue.value || undefined
+    })
     if (data) {
-      articles.value = data
-      pagination.value.total = data.length
+      articles.value = data.objects || []
+      pagination.value.total = data.total || 0
       pagination.value.page = pageIndex
     }
   } catch (e) {
@@ -37,9 +41,21 @@ const handlePageChange = (newPage: number) => {
   goToPage(newPage + 1)
 }
 
+const handleSizeChange = (newSize: number) => {
+  pagination.value.size = newSize
+  goToPage(1)
+}
+
 const goToPage = (page: number) => {
   router.push({ path: '/articles', query: { page } })
 }
+
+watch(
+  searchValue,
+  () => {
+    goToPage(1)
+  }
+)
 
 watch(
   currentPage,
@@ -68,6 +84,7 @@ watch(
           :items-per-page="pagination.size"
           :current-page="pagination.page"
           @change-page="handlePageChange"
+          @change-size="handleSizeChange"
         />
       </div>
       <div v-else-if="!loading" class="text-center py-20 text-text-muted">
