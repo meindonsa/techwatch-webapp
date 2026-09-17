@@ -30,6 +30,14 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const userStore = useUserStore();
 
+    // Handle 429 Rate Limit - don't retry automatically, let UI handle it
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers['retry-after']
+      const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000
+      console.warn(`[API] Rate limited. Retry after ${waitTime}ms`)
+      return Promise.reject(error)
+    }
+
     // 1. On ne tente le refresh QUE si c'est une 401 et que ce n'est pas déjà une tentative de refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       

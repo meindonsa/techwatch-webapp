@@ -12,6 +12,7 @@ export interface Article {
     image: string | null
     feed_id: number
     fetched_at: string | Date
+    source_name?: string
 }
 
 export const ArticleService = {

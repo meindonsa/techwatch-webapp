@@ -25,7 +25,12 @@ export interface RegisterRequest {
 
 export interface RefreshRequest {
     refreshToken: string
-}
+  }
+
+export interface UpdatePasswordRequest {
+    currentPassword: string
+    newPassword: string
+  }
 
 export const UserService = {
   async login(data: LoginRequest): Promise<AxiosResponse<AuthResponse>> {
@@ -48,8 +53,8 @@ export const UserService = {
     return api.get('/users/me')
   },
 
-  async updatePassword(newPassword: string): Promise<AxiosResponse> {
-    return api.patch('/users/me/password', { newPassword })
+  async updatePassword(data: UpdatePasswordRequest): Promise<AxiosResponse> {
+    return api.patch('/users/me/password', data)
   },
 
   async deleteAccount(): Promise<AxiosResponse> {
