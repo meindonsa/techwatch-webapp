@@ -75,7 +75,7 @@ const handleRegister = async () => {
             @input="() => {}"
           />
           <!-- Password strength indicator -->
-          <div v-if="password.value" class="space-y-1.5">
+          <div v-if="password" class="space-y-1.5">
             <div class="flex gap-1 h-2">
               <div 
                 v-for="(_, i) in 5" 
