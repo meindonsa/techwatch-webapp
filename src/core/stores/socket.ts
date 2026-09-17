@@ -17,8 +17,10 @@ export const useSocketStore = defineStore('socket', () => {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
     const wsUrl = baseUrl.replace('http', 'ws')
     const username = userStore.user.username
+    const token = userStore.accessToken
     
-    socket.value = new WebSocket(`${wsUrl}/ws/${username}`)
+    // Include JWT token as query parameter for authentication
+    socket.value = new WebSocket(`${wsUrl}/ws/${username}?token=${encodeURIComponent(token || '')}`)
 
     socket.value.onopen = () => {
       isConnected.value = true
@@ -50,10 +52,21 @@ export const useSocketStore = defineStore('socket', () => {
       }
     }
 
-    socket.value.onclose = () => {
+    socket.value.onclose = async () => {
       isConnected.value = false
       socket.value = null
       console.log('[Socket] Disconnected. Attempting to reconnect in 5s...')
+      
+      // Try to refresh token before reconnecting if we have a refresh token
+      if (userStore.refreshToken) {
+        try {
+          await userStore.refreshToken()
+          console.log('[Socket] Token refreshed for reconnection')
+        } catch (e) {
+          console.error('[Socket] Failed to refresh token for reconnection:', e)
+        }
+      }
+      
       setTimeout(connect, 5000)
     }
 
