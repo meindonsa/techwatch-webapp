@@ -27,18 +27,32 @@ async function fetchProfile() {
 }
 
 async function handleUpdatePassword() {
-  if (newPassword.value.length < 8) {
-    message.value = {
-      type: 'error',
-      text: 'Le nouveau mot de passe doit contenir au moins 8 caractères.',
-    }
+  // Validate new password against API requirements
+  const pwd = newPassword.value
+  const checks = {
+    length: pwd.length >= 12,
+    upper: /[A-Z]/.test(pwd),
+    lower: /[a-z]/.test(pwd),
+    digit: /[0-9]/.test(pwd),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+  }
+  
+  if (!checks.length) {
+    message.value = { type: 'error', text: 'Le nouveau mot de passe doit contenir au moins 12 caractères.' }
     return
   }
+  if (!checks.upper || !checks.lower || !checks.digit || !checks.special) {
+    message.value = { type: 'error', text: 'Le mot de passe doit contenir : 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.' }
+    return
+  }
+  
   if (newPassword.value !== confirmPassword.value) {
-    message.value = {
-      type: 'error',
-      text: 'Les mots de passe de confirmation ne correspondent pas.',
-    }
+    message.value = { type: 'error', text: 'Les mots de passe de confirmation ne correspondent pas.' }
+    return
+  }
+
+  if (!currentPassword.value) {
+    message.value = { type: 'error', text: 'Le mot de passe actuel est requis.' }
     return
   }
 
@@ -46,9 +60,10 @@ async function handleUpdatePassword() {
   message.value = { type: '', text: '' }
 
   try {
-    // Note: The backend current implementation only takes newPassword.
-    // In a real scenario, we'd send currentPassword too.
-    await UserService.updatePassword(newPassword.value)
+    await UserService.updatePassword({
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value
+    })
     message.value = { type: 'success', text: 'Mot de passe mis à jour avec succès !' }
     currentPassword.value = ''
     newPassword.value = ''
