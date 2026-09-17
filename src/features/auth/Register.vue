@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/core/stores/user.ts'
 import Button from '@/shared/components/Button.vue'
@@ -11,6 +11,20 @@ const username = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const loading = ref(false)
+
+// Password strength validation (matches API requirements: min 12 chars, upper, lower, digit, special)
+const passwordStrength = computed(() => {
+  const pwd = password.value
+  const checks = {
+    length: pwd.length >= 12,
+    upper: /[A-Z]/.test(pwd),
+    lower: /[a-z]/.test(pwd),
+    digit: /[0-9]/.test(pwd),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+  }
+  const score = Object.values(checks).filter(Boolean).length
+  return { checks, score, isValid: score === 5 }
+})
 
 const handleRegister = async () => {
   error.value = null
@@ -58,7 +72,32 @@ const handleRegister = async () => {
             type="password" 
             class="input-field"
             placeholder="••••••••"
+            @input="() => {}"
           />
+          <!-- Password strength indicator -->
+          <div v-if="password.value" class="space-y-1.5">
+            <div class="flex gap-1 h-2">
+              <div 
+                v-for="(_, i) in 5" 
+                :key="i" 
+                class="flex-1 rounded transition-colors"
+                :class="[
+                  passwordStrength.score > i ? 'bg-[#FF7A33]' : 'bg-[#2D323F]',
+                  passwordStrength.score === 5 && i === 4 ? 'bg-green-500' : ''
+                ]"
+              />
+            </div>
+            <div class="flex flex-wrap gap-1.5 text-[11px] text-[#8B93A7]">
+              <span :class="passwordStrength.checks.length ? 'text-[#FF7A33]' : 'text-[#8B93A7]'">12+ caractères</span>
+              <span :class="passwordStrength.checks.upper ? 'text-[#FF7A33]' : 'text-[#8B93A7]'">Majuscule</span>
+              <span :class="passwordStrength.checks.lower ? 'text-[#FF7A33]' : 'text-[#8B93A7]'">Minuscule</span>
+              <span :class="passwordStrength.checks.digit ? 'text-[#FF7A33]' : 'text-[#8B93A7]'">Chiffre</span>
+              <span :class="passwordStrength.checks.special ? 'text-[#FF7A33]' : 'text-[#8B93A7]'">Spécial</span>
+            </div>
+            <p v-if="!passwordStrength.isValid" class="text-red-400 text-[11px]">
+              Le mot de passe doit contenir : 12+ caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial
+            </p>
+          </div>
         </div>
         
         <div v-if="error" class="p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-red-400 text-xs text-center mb-4">
