@@ -52,7 +52,7 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('refresh_token')
   }
 
-  async function refreshToken() {
+  async function refreshAccessToken() {
     if (!refreshToken.value) throw new Error('No refresh token')
     
     const { data } = await UserService.refresh({ refreshToken: refreshToken.value })
@@ -69,6 +69,6 @@ export const useUserStore = defineStore('user', () => {
     login, 
     register, 
     logout,
-    refreshToken
+    refreshAccessToken
   }
 })

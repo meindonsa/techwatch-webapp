@@ -60,7 +60,7 @@ export const useSocketStore = defineStore('socket', () => {
       // Try to refresh token before reconnecting if we have a refresh token
       if (userStore.refreshToken) {
         try {
-          await userStore.refreshToken()
+          await userStore.refreshAccessToken()
           console.log('[Socket] Token refreshed for reconnection')
         } catch (e) {
           console.error('[Socket] Failed to refresh token for reconnection:', e)
