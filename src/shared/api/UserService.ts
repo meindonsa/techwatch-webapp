@@ -4,6 +4,8 @@ import type { AxiosResponse } from 'axios'
 export interface User {
     id: number
     username: string
+    email: string
+    full_name: string
     created_at: string
 }
 
@@ -14,12 +16,13 @@ export interface AuthResponse {
 }
 
 export interface LoginRequest {
-    username: string
+    email: string
     password: string
 }
 
 export interface RegisterRequest {
-    username: string
+    email: string
+    full_name: string
     password: string
 }
 
@@ -27,10 +30,14 @@ export interface RefreshRequest {
     refreshToken: string
   }
 
+export interface UpdateProfileRequest {
+    full_name: string
+}
+
 export interface UpdatePasswordRequest {
     currentPassword: string
     newPassword: string
-  }
+}
 
 export const UserService = {
   async login(data: LoginRequest): Promise<AxiosResponse<AuthResponse>> {
@@ -55,6 +62,10 @@ export const UserService = {
 
   async updatePassword(data: UpdatePasswordRequest): Promise<AxiosResponse> {
     return api.patch('/users/me/password', data)
+  },
+
+  async updateProfile(data: UpdateProfileRequest): Promise<AxiosResponse<User>> {
+    return api.patch('/users/me', data)
   },
 
   async deleteAccount(): Promise<AxiosResponse> {

@@ -7,7 +7,7 @@ import Button from '@/shared/components/Button.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const loading = ref(false)
@@ -16,7 +16,7 @@ const handleLogin = async () => {
   error.value = null
   loading.value = true
   try {
-    await userStore.login(username.value, password.value)
+    await userStore.login(email.value, password.value)
     router.push('/')
   } catch (e: any) {
     error.value = e.response?.data?.error || 'Une erreur est survenue lors de la connexion'
@@ -46,14 +46,14 @@ const handleLogin = async () => {
       <p class="text-center text-[#8B93A7] text-[13.5px] mb-7">Connecte-toi pour retrouver tes flux</p>
       
       <div class="space-y-4">
-        <!-- Field User -->
+        <!-- Field Email -->
         <div class="space-y-1 mb-4">
-          <label class="block text-[12.5px] text-[#8B93A7]">Nom d'utilisateur</label>
+          <label class="block text-[12.5px] text-[#8B93A7]">Email</label>
           <input 
-            v-model="username" 
-            type="text" 
+            v-model="email" 
+            type="email" 
             class="input-field"
-            placeholder="boris.ebaneth"
+            placeholder="ton@email.com"
           />
         </div>
         
