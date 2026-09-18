@@ -13,6 +13,7 @@ export interface Feed {
 }
 
 export interface NewSource {
+    name: string
     url: string
 }
 

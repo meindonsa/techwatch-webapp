@@ -3,14 +3,14 @@ import { computed, ref } from 'vue'
 import { hasInvalidString } from '@/shared/service/Utils.ts'
 import Button from '@/shared/components/Button.vue'
 
-const emit = defineEmits(['onCancel', "onSave"])
+const emit = defineEmits(['onCancel', 'onSave'])
 const form = ref({
   name: '',
   url: '',
 })
 
 const isValid = computed(() => {
-  return  hasInvalidString(form.value.name, form.value.url)
+  return hasInvalidString(form.value.name, form.value.url)
 })
 
 const onCancel = () => {
@@ -37,8 +37,8 @@ const onclick = () => {
     placeholder="Url de la source"
   />
   <div class="w-full flex justify-between">
-    <Button label="Annuler" @onclick="onCancel" severity="secondary" />
-    <Button label="Enregister" @onclick="onclick" :disabled="isValid" severity="primary" />
+    <Button label="Annuler" @click="onCancel" severity="secondary" />
+    <Button label="Enregister" @click="onclick" :disabled="isValid" severity="primary" />
   </div>
 </template>
 
