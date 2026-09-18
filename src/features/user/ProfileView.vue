@@ -9,6 +9,8 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const profile = ref(userStore.user)
+const fullName = ref(userStore.user?.full_name || '')
+const isEditingName = ref(false)
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
@@ -21,8 +23,26 @@ async function fetchProfile() {
     const { data } = await UserService.getProfile()
     profile.value = data
     userStore.user = data
+    fullName.value = data.full_name || ''
   } catch (e) {
     console.error('Error fetching profile:', e)
+  }
+}
+
+async function handleUpdateName() {
+  isUpdating.value = true
+  message.value = { type: '', text: '' }
+
+  try {
+    const { data } = await UserService.updateProfile({ full_name: fullName.value })
+    profile.value = data
+    userStore.user = data
+    message.value = { type: 'success', text: 'Nom mis à jour avec succès !' }
+    isEditingName.value = false
+  } catch (e: any) {
+    message.value = { type: 'error', text: e.response?.data?.error || 'Une erreur est survenue.' }
+  } finally {
+    isUpdating.value = false
   }
 }
 
@@ -103,10 +123,45 @@ onMounted(fetchProfile)
       >
         {{ profile?.username?.substring(0, 2).toUpperCase() || '??' }}
       </div>
-      <div>
-        <h1 class="font-serif text-[22px] font-medium leading-tight">
-          {{ profile?.username }}
-        </h1>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <h1 class="font-serif text-[22px] font-medium leading-tight truncate">
+            {{ profile?.username }}
+          </h1>
+        </div>
+        <div v-if="isEditingName" class="flex items-center gap-2">
+          <input
+            v-model="fullName"
+            type="text"
+            class="flex-1 bg-bg border border-border rounded-lg px-4 py-2 text-sm text-text focus:ring-1 focus:ring-accent outline-none transition-all"
+            placeholder="Nom complet"
+          />
+          <Button
+            class="shrink-0"
+            :disabled="isUpdating || !fullName.trim()"
+            @click="handleUpdateName"
+            :label="isUpdating ? 'Enregistrement...' : 'Valider'"
+          />
+          <Button
+            class="shrink-0"
+            severity="outline"
+            @click="isEditingName = false"
+            :label="'Annuler'"
+            :disabled="isUpdating"
+          />
+        </div>
+        <div v-else class="flex items-center gap-2">
+          <p class="text-text-muted text-[13px] truncate flex-1">
+            {{ fullName || 'Nom non défini' }}
+          </p>
+          <Button
+            class="shrink-0"
+            severity="outline"
+            size="sm"
+            @click="isEditingName = true"
+            :label="'Modifier'"
+          />
+        </div>
         <p class="text-text-muted text-[13px] mt-0.5">
           Membre depuis
           {{ profile?.created_at ? new Date(profile.created_at).getFullYear() : '2026' }}

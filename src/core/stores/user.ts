@@ -14,8 +14,8 @@ export const useUserStore = defineStore('user', () => {
 
   const isAuthenticated = computed(() => !!accessToken.value)
 
-  async function login(username: string, password: string) {
-    const { data } = await UserService.login({ username, password })
+  async function login(email: string, password: string) {
+    const { data } = await UserService.login({ email, password })
 
     user.value = data.user
     accessToken.value = data.accessToken
@@ -28,8 +28,8 @@ export const useUserStore = defineStore('user', () => {
     router.push('/home')
   }
 
-  async function register(username: string, password: string) {
-    await UserService.register({ username, password })
+  async function register(email: string, fullName: string, password: string) {
+    await UserService.register({ email, full_name: fullName, password })
   }
 
   async function logout() {

@@ -7,7 +7,8 @@ import Button from '@/shared/components/Button.vue'
 const router = useRouter()
 const userStore = useUserStore()
 
-const username = ref('')
+const email = ref('')
+const fullName = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const loading = ref(false)
@@ -30,7 +31,7 @@ const handleRegister = async () => {
   error.value = null
   loading.value = true
   try {
-    await userStore.register(username.value, password.value)
+    await userStore.register(email.value, fullName.value, password.value)
     router.push('/login')
   } catch (e: any) {
     error.value = e.response?.data?.error || 'Une erreur est survenue lors de l\'inscription'
@@ -56,15 +57,29 @@ const handleRegister = async () => {
       <p class="text-center text-[#8B93A7] text-sm mb-7">Commence à suivre tes sites préférés</p>
       
       <div class="space-y-4">
+        <!-- Email Field -->
         <div class="space-y-1">
-          <label class="label-field">Nom d'utilisateur</label>
+          <label class="label-field">Email</label>
           <input 
-            v-model="username" 
-            type="text" 
+            v-model="email" 
+            type="email" 
             class="input-field"
-            placeholder="Choisis un pseudo"
+            placeholder="ton@email.com"
           />
         </div>
+
+        <!-- Full Name Field -->
+        <div class="space-y-1">
+          <label class="label-field">Nom complet</label>
+          <input 
+            v-model="fullName" 
+            type="text" 
+            class="input-field"
+            placeholder="Prénom Nom"
+          />
+        </div>
+
+        <!-- Password Field -->
         <div class="space-y-1">
           <label class="block text-[12.5px] text-[#8B93A7]">Mot de passe</label>
           <input 
