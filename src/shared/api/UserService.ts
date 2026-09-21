@@ -39,6 +39,15 @@ export interface UpdatePasswordRequest {
     newPassword: string
 }
 
+export interface ForgotPasswordRequest {
+    email: string
+}
+
+export interface ResetPasswordRequest {
+    token: string
+    password: string
+}
+
 export const UserService = {
   async login(data: LoginRequest): Promise<AxiosResponse<AuthResponse>> {
     return api.post('/auth/login', data)
@@ -70,5 +79,13 @@ export const UserService = {
 
   async deleteAccount(): Promise<AxiosResponse> {
     return api.delete('/users/me')
+  },
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<AxiosResponse<{ message: string }>> {
+    return api.post('/auth/forgot-password', data)
+  },
+
+  async resetPassword(data: ResetPasswordRequest): Promise<AxiosResponse<{ message: string }>> {
+    return api.post('/auth/reset-password', data)
   }
 }
