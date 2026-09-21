@@ -38,8 +38,7 @@ const handleSubmit = async () => {
   error.value = null
   loading.value = true
   try {
-    // await userStore.forgotPassword(email.value.trim())
-    sent.value = true
+    await userStore.forgotPassword(email.value.trim())
     startCooldown()
   } catch (e: any) {
     error.value = e.response?.data?.error || 'Impossible d’envoyer le lien pour le moment. Réessaie dans un instant.'
