@@ -61,6 +61,14 @@ export const useUserStore = defineStore('user', () => {
     return data.accessToken
   }
 
+  async function forgotPassword(email: string) {
+    await UserService.forgotPassword({ email })
+  }
+
+  async function resetPassword(token: string, password: string) {
+    await UserService.resetPassword({ token, password })
+  }
+
   return { 
     user, 
     accessToken, 
@@ -69,6 +77,8 @@ export const useUserStore = defineStore('user', () => {
     login, 
     register, 
     logout,
-    refreshAccessToken
+    refreshAccessToken,
+    forgotPassword,
+    resetPassword
   }
 })
