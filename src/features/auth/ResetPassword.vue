@@ -38,7 +38,7 @@ const handleSubmit = async () => {
   error.value = null
   loading.value = true
   try {
-    //await userStore.resetPassword(token.value, password.value)
+    await userStore.resetPassword(token.value, password.value)
     done.value = true
   } catch (e: any) {
     error.value =
