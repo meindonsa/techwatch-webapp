@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/core/stores/user.ts'
 import { UserService } from '@/shared/api/UserService.ts'
 import Button from '@/shared/components/Button.vue'
@@ -17,6 +17,19 @@ const confirmPassword = ref('')
 const isUpdating = ref(false)
 const isDeleting = ref(false)
 const message = ref({ type: '', text: '' })
+
+const passwordStrength = computed(() => {
+  const pwd = newPassword.value
+  const checks = {
+    length: pwd.length >= 12,
+    upper: /[A-Z]/.test(pwd),
+    lower: /[a-z]/.test(pwd),
+    digit: /[0-9]/.test(pwd),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+  }
+  const score = Object.values(checks).filter(Boolean).length
+  return { checks, score, isValid: score === 5 }
+})
 
 async function fetchProfile() {
   try {
@@ -56,18 +69,27 @@ async function handleUpdatePassword() {
     digit: /[0-9]/.test(pwd),
     special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
   }
-  
+
   if (!checks.length) {
-    message.value = { type: 'error', text: 'Le nouveau mot de passe doit contenir au moins 12 caractères.' }
+    message.value = {
+      type: 'error',
+      text: 'Le nouveau mot de passe doit contenir au moins 12 caractères.',
+    }
     return
   }
   if (!checks.upper || !checks.lower || !checks.digit || !checks.special) {
-    message.value = { type: 'error', text: 'Le mot de passe doit contenir : 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.' }
+    message.value = {
+      type: 'error',
+      text: 'Le mot de passe doit contenir : 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial.',
+    }
     return
   }
-  
+
   if (newPassword.value !== confirmPassword.value) {
-    message.value = { type: 'error', text: 'Les mots de passe de confirmation ne correspondent pas.' }
+    message.value = {
+      type: 'error',
+      text: 'Les mots de passe de confirmation ne correspondent pas.',
+    }
     return
   }
 
@@ -82,7 +104,7 @@ async function handleUpdatePassword() {
   try {
     await UserService.updatePassword({
       currentPassword: currentPassword.value,
-      newPassword: newPassword.value
+      newPassword: newPassword.value,
     })
     message.value = { type: 'success', text: 'Mot de passe mis à jour avec succès !' }
     currentPassword.value = ''
@@ -193,9 +215,44 @@ onMounted(fetchProfile)
             <input
               v-model="newPassword"
               type="password"
-              placeholder="8 caractères minimum"
+              placeholder="12 caractères minimum"
               class="w-full bg-bg border border-border rounded-lg px-4 py-2.5 text-sm text-text focus:ring-1 focus:ring-accent outline-none transition-all"
             />
+            <!-- Password strength indicator -->
+            <div v-if="newPassword" class="space-y-1.5">
+              <div class="flex gap-1 h-2">
+                <div
+                  v-for="(_, i) in 5"
+                  :key="i"
+                  class="flex-1 rounded transition-colors"
+                  :class="[
+                    passwordStrength.score > i ? 'bg-[#FF7A33]' : 'bg-[#2D323F]',
+                    passwordStrength.score === 5 && i === 4 ? 'bg-green-500' : '',
+                  ]"
+                />
+              </div>
+              <div class="flex flex-wrap gap-1.5 text-[11px] text-[#8B93A7]">
+                <span :class="passwordStrength.checks.length ? 'text-[#FF7A33]' : 'text-[#8B93A7]'"
+                  >12+ caractères</span
+                >
+                <span :class="passwordStrength.checks.upper ? 'text-[#FF7A33]' : 'text-[#8B93A7]'"
+                  >Majuscule</span
+                >
+                <span :class="passwordStrength.checks.lower ? 'text-[#FF7A33]' : 'text-[#8B93A7]'"
+                  >Minuscule</span
+                >
+                <span :class="passwordStrength.checks.digit ? 'text-[#FF7A33]' : 'text-[#8B93A7]'"
+                  >Chiffre</span
+                >
+                <span :class="passwordStrength.checks.special ? 'text-[#FF7A33]' : 'text-[#8B93A7]'"
+                  >Spécial</span
+                >
+              </div>
+              <p v-if="!passwordStrength.isValid" class="text-red-400 text-[11px]">
+                Le mot de passe doit contenir : 12+ caractères, 1 majuscule, 1 minuscule, 1 chiffre,
+                1 caractère spécial
+              </p>
+            </div>
           </div>
           <div class="space-y-1.5">
             <label class="text-xs font-medium text-text-faint uppercase tracking-wider"
