@@ -34,13 +34,22 @@ watchEffect(() => {
 const seeAll = () => {
   router.push('/articles')
 }
+
+// Les deux listes de sources (mobile et desktop) sont montées en même temps : on les recrée
+// toutes les deux pour qu'elles restent synchronisées, et on recharge les articles restants.
+const sourcesKey = ref(0)
+
+const onUnsubscribed = () => {
+  sourcesKey.value++
+  retrieveArticles(0, searchValue.value)
+}
 </script>
 
 <template>
   <div class="max-w-[1180px] mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Sources Strip: Visible ONLY on mobile, placed ABOVE the page grid -->
     <div class="md:hidden mb-8">
-      <Sources mode="strip" />
+      <Sources :key="`strip-${sourcesKey}`" mode="strip" @unsubscribed="onUnsubscribed" />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
@@ -67,7 +76,7 @@ const seeAll = () => {
 
       <!-- Desktop Sources Rail -->
       <aside class="hidden md:block md:col-span-4 lg:col-span-3">
-        <Sources mode="rail" />
+        <Sources :key="`rail-${sourcesKey}`" mode="rail" @unsubscribed="onUnsubscribed" />
       </aside>
     </div>
   </div>

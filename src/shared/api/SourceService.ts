@@ -28,5 +28,11 @@ export const SourceService = {
     const userStore = useUserStore()
     const username = userStore.user?.username || 'guest'
     return api.post(`/feeds/${username}`, source)
+  },
+
+  async unsubscribeUserFromFeed(feedId: number): Promise<AxiosResponse> {
+    const userStore = useUserStore()
+    const username = userStore.user?.username || 'guest'
+    return api.delete(`/feeds/${feedId}/users/${username}`)
   }
 }
