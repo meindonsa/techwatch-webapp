@@ -21,11 +21,20 @@ const retrieveArticle = async () => {
 
   loading.value = true
   try {
-    await articleStore.fetchArticleById(id)
+    const fetchedArticle = await articleStore.fetchArticleById(id)
+    if (fetchedArticle) articleStore.setSelectedId(id)
   } catch (e) {
-    console.error('Erreur lors de la récupération de l\'article :', e)
+    console.error("Erreur lors de la récupération de l'article :", e)
   } finally {
     loading.value = false
+  }
+}
+
+const goBack = () => {
+  if (window.history.state?.back) {
+    router.back()
+  } else {
+    router.push('/')
   }
 }
 
@@ -39,24 +48,27 @@ const article = computed(() => articleStore.currentArticle)
 <template>
   <div class="max-w-[680px] mx-auto px-5 py-8 md:py-10">
     <!-- Back Link -->
-    <div 
-      @click="router.push('/articles')" 
-      class="inline-flex items-center gap-1.5 text-[13px] text-text-muted cursor-pointer hover:text-accent transition-colors mb-6"
+    <button
+      type="button"
+      @click="goBack"
+      class="inline-flex items-center gap-1.5 text-[13px] text-text-muted cursor-pointer hover:text-accent transition-colors mb-6 bg-transparent border-0 p-0"
     >
       <span>←</span> Retour au fil
-    </div>
+    </button>
 
-    <div v-if="loading" class="text-center text-text-muted py-20">
-      Chargement de l'article...
-    </div>
+    <div v-if="loading" class="text-center text-text-muted py-20">Chargement de l'article...</div>
 
     <div v-else-if="article" class="flex flex-col">
       <!-- Source Header -->
       <div class="flex items-center gap-2.5 mb-4">
-        <div class="w-[28px] h-[28px] rounded-lg bg-surface border border-border flex items-center justify-center text-[11px] font-semibold text-text-muted shrink-0">
+        <div
+          class="w-[28px] h-[28px] rounded-lg bg-surface border border-border flex items-center justify-center text-[11px] font-semibold text-text-muted shrink-0"
+        >
           {{ article.title?.substring(0, 2).toUpperCase() || '??' }}
         </div>
-        <span class="text-[13px] text-text-muted">{{ article.source_name || 'Source inconnue' }}</span>
+        <span class="text-[13px] text-text-muted">{{
+          article.source_name || 'Source inconnue'
+        }}</span>
       </div>
 
       <!-- Title -->
@@ -66,22 +78,23 @@ const article = computed(() => articleStore.currentArticle)
 
       <!-- Meta -->
       <div class="text-[13px] text-text-faint mb-7 pb-7 border-b border-border">
-        Par {{ article.author || 'Auteur inconnu' }} — {{ formatDate(article.fetched_at, 'medium') }}
+        Par {{ article.author || 'Auteur inconnu' }} —
+        {{ formatDate(article.fetched_at, 'medium') }}
       </div>
 
       <!-- Image -->
       <div v-if="article.image" class="mb-8">
-        <img 
-          :src="article.image" 
-          :alt="article.title" 
+        <img
+          :src="article.image"
+          :alt="article.title"
           class="w-full h-auto max-h-[400px] object-cover rounded-xl border border-border shadow-sm"
         />
       </div>
 
       <!-- Body -->
-      <div 
-        v-if="article.summary" 
-        class="text-[#C9CEDA] leading-[1.75] text-[15.5px] mb-10 prose prose-invert prose-indigo max-w-none" 
+      <div
+        v-if="article.summary"
+        class="text-[#C9CEDA] leading-[1.75] text-[15.5px] mb-10 prose prose-invert prose-indigo max-w-none"
         v-html="article.summary"
       ></div>
       <div v-else class="text-gray-500 italic text-center py-10">
@@ -90,9 +103,9 @@ const article = computed(() => articleStore.currentArticle)
 
       <!-- Original Link -->
       <div class="flex justify-start">
-        <a 
-          :href="article.link" 
-          target="_blank" 
+        <a
+          :href="article.link"
+          target="_blank"
           class="text-[13.5px] text-accent border-b border-accent hover:opacity-80 transition-opacity"
         >
           Lire l'article original →
@@ -100,9 +113,7 @@ const article = computed(() => articleStore.currentArticle)
       </div>
     </div>
 
-    <div v-else class="text-center text-text-muted py-20">
-      Article non trouvé.
-    </div>
+    <div v-else class="text-center text-text-muted py-20">Article non trouvé.</div>
   </div>
 </template>
 
