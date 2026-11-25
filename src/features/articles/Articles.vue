@@ -36,6 +36,7 @@ const handleSizeChange = (newSize: number) => {
 
 const goToPage = (page: number) => {
   router.push({ path: '/articles', query: { page } })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(
