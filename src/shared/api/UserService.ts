@@ -54,6 +54,19 @@ export interface OAuthExchangeRequest {
     code: string
 }
 
+export interface OAuthProviderStatus {
+    provider: OAuthProvider
+    configured: boolean
+    linked: boolean
+    email: string | null
+    linkedAt: string | null
+}
+
+export interface OAuthAccountsResponse {
+    hasPassword: boolean
+    providers: OAuthProviderStatus[]
+}
+
 /**
  * URL de départ du flux de connexion OAuth. Ce doit être une navigation complète
  * (window.location), pas un appel axios : l'API redirige vers Google / GitHub.
@@ -70,6 +83,19 @@ export const UserService = {
 
   async oauthExchange(data: OAuthExchangeRequest): Promise<AxiosResponse<AuthResponse>> {
     return api.post('/auth/oauth/exchange', data)
+  },
+
+  async getOAuthAccounts(): Promise<AxiosResponse<OAuthAccountsResponse>> {
+    return api.get('/users/me/oauth')
+  },
+
+  // Renvoie l'URL de consentement du provider : le front doit y naviguer (window.location)
+  async startOAuthLink(provider: OAuthProvider): Promise<AxiosResponse<{ url: string }>> {
+    return api.post(`/users/me/oauth/${provider}/start`)
+  },
+
+  async unlinkOAuthAccount(provider: OAuthProvider): Promise<AxiosResponse<{ message: string }>> {
+    return api.delete(`/users/me/oauth/${provider}`)
   },
 
   async register(data: RegisterRequest): Promise<AxiosResponse<User>> {
