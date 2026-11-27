@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/core/stores/user.ts'
-import { getOAuthLoginUrl, type OAuthProvider } from '@/shared/api/UserService.ts'
 import { getOAuthErrorMessage } from '@/features/auth/oauthErrors.ts'
+import OAuthButtons from '@/features/auth/OAuthButtons.vue'
 import Button from '@/shared/components/Button.vue'
 
 const route = useRoute()
@@ -19,13 +19,6 @@ const loading = ref(false)
 if (route.query.error) {
   error.value = getOAuthErrorMessage(route.query.error)
   router.replace({ name: 'login', query: {} })
-}
-
-const handleOAuth = (provider: OAuthProvider) => {
-  error.value = null
-  loading.value = true
-  // Navigation complète : l'API redirige vers la page de consentement du fournisseur
-  window.location.href = getOAuthLoginUrl(provider)
 }
 
 const handleLogin = async () => {
@@ -111,32 +104,8 @@ const handleLogin = async () => {
           class="w-full block"
         />
 
-        <!-- Divider -->
-        <div class="flex items-center gap-3 text-[12px] text-[#8B93A7]">
-          <span class="h-px flex-1 bg-border"></span>
-          ou continuer avec
-          <span class="h-px flex-1 bg-border"></span>
-        </div>
-
         <!-- OAuth -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Button
-            label="Google"
-            aria-label="Continuer avec Google"
-            severity="outline"
-            :disabled="loading"
-            class="w-full"
-            @click="handleOAuth('google')"
-          />
-          <Button
-            label="GitHub"
-            aria-label="Continuer avec GitHub"
-            severity="outline"
-            :disabled="loading"
-            class="w-full"
-            @click="handleOAuth('github')"
-          />
-        </div>
+        <OAuthButtons :disabled="loading" @start="loading = true" />
 
         <!-- Footer -->
         <div class="text-center mt-5 text-[13px] text-[#8B93A7]">

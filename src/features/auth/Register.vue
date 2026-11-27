@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/core/stores/user.ts'
+import OAuthButtons from '@/features/auth/OAuthButtons.vue'
 import Button from '@/shared/components/Button.vue'
 
 const router = useRouter()
@@ -144,6 +145,8 @@ const handleRegister = async () => {
           :disabled="loading"
           class="w-full block"
         />
+
+        <OAuthButtons intro="ou s'inscrire avec" :disabled="loading" @start="loading = true" />
 
         <div class="text-center mt-5 text-sm text-[#8B93A7]">
           Déjà inscrit ?
