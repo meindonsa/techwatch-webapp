@@ -48,9 +48,28 @@ export interface ResetPasswordRequest {
     password: string
 }
 
+export type OAuthProvider = 'google' | 'github'
+
+export interface OAuthExchangeRequest {
+    code: string
+}
+
+/**
+ * URL de départ du flux de connexion OAuth. Ce doit être une navigation complète
+ * (window.location), pas un appel axios : l'API redirige vers Google / GitHub.
+ */
+export function getOAuthLoginUrl(provider: OAuthProvider): string {
+  const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+  return `${base}/auth/${provider}`
+}
+
 export const UserService = {
   async login(data: LoginRequest): Promise<AxiosResponse<AuthResponse>> {
     return api.post('/auth/login', data)
+  },
+
+  async oauthExchange(data: OAuthExchangeRequest): Promise<AxiosResponse<AuthResponse>> {
+    return api.post('/auth/oauth/exchange', data)
   },
 
   async register(data: RegisterRequest): Promise<AxiosResponse<User>> {

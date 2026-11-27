@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/core/stores/user.ts'
+import { getOAuthLoginUrl, type OAuthProvider } from '@/shared/api/UserService.ts'
+import { getOAuthErrorMessage } from '@/features/auth/oauthErrors.ts'
 import Button from '@/shared/components/Button.vue'
 
+const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
@@ -11,6 +14,19 @@ const email = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const loading = ref(false)
+
+// Retour d'un échec Google / GitHub : l'API redirige vers /login?error=<code>
+if (route.query.error) {
+  error.value = getOAuthErrorMessage(route.query.error)
+  router.replace({ name: 'login', query: {} })
+}
+
+const handleOAuth = (provider: OAuthProvider) => {
+  error.value = null
+  loading.value = true
+  // Navigation complète : l'API redirige vers la page de consentement du fournisseur
+  window.location.href = getOAuthLoginUrl(provider)
+}
 
 const handleLogin = async () => {
   error.value = null
@@ -94,6 +110,33 @@ const handleLogin = async () => {
           :disabled="loading"
           class="w-full block"
         />
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 text-[12px] text-[#8B93A7]">
+          <span class="h-px flex-1 bg-border"></span>
+          ou continuer avec
+          <span class="h-px flex-1 bg-border"></span>
+        </div>
+
+        <!-- OAuth -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            label="Google"
+            aria-label="Continuer avec Google"
+            severity="outline"
+            :disabled="loading"
+            class="w-full"
+            @click="handleOAuth('google')"
+          />
+          <Button
+            label="GitHub"
+            aria-label="Continuer avec GitHub"
+            severity="outline"
+            :disabled="loading"
+            class="w-full"
+            @click="handleOAuth('github')"
+          />
+        </div>
 
         <!-- Footer -->
         <div class="text-center mt-5 text-[13px] text-[#8B93A7]">

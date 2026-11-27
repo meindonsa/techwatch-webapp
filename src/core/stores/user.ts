@@ -28,6 +28,19 @@ export const useUserStore = defineStore('user', () => {
     router.push('/home')
   }
 
+  // Connexion Google / GitHub : échange le code à usage unique reçu dans /oauth/callback?code=...
+  async function loginWithCode(code: string) {
+    const { data } = await UserService.oauthExchange({ code })
+
+    user.value = data.user
+    accessToken.value = data.accessToken
+    refreshToken.value = data.refreshToken
+
+    localStorage.setItem('user', JSON.stringify(data.user))
+    localStorage.setItem('access_token', data.accessToken)
+    localStorage.setItem('refresh_token', data.refreshToken)
+  }
+
   async function register(email: string, fullName: string, password: string) {
     await UserService.register({ email, full_name: fullName, password })
   }
@@ -74,8 +87,9 @@ export const useUserStore = defineStore('user', () => {
     accessToken, 
     refreshToken, 
     isAuthenticated, 
-    login, 
-    register, 
+    login,
+    loginWithCode,
+    register,
     logout,
     refreshAccessToken,
     forgotPassword,

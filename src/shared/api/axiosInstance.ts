@@ -38,6 +38,12 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    // L'échange du code OAuth se fait sans session : une 401 signifie « code invalide ou expiré »,
+    // pas « access token expiré ». On laisse la page /oauth/callback gérer l'erreur.
+    if (originalRequest?.url?.includes('/auth/oauth/exchange')) {
+      return Promise.reject(error)
+    }
+
     // 1. On ne tente le refresh QUE si c'est une 401 et que ce n'est pas déjà une tentative de refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       
