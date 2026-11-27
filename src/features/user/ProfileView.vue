@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/core/stores/user.ts'
-import { UserService } from '@/shared/api/UserService.ts'
+import { UserService, type OAuthAccountsResponse } from '@/shared/api/UserService.ts'
+import LinkedAccounts from '@/features/user/LinkedAccounts.vue'
 import Button from '@/shared/components/Button.vue'
 import { useRouter } from 'vue-router'
 
@@ -17,6 +18,8 @@ const confirmPassword = ref('')
 const isUpdating = ref(false)
 const isDeleting = ref(false)
 const message = ref({ type: '', text: '' })
+const oauthAccounts = ref<OAuthAccountsResponse | null>(null)
+const oauthFailed = ref(false)
 
 const passwordStrength = computed(() => {
   const pwd = newPassword.value
@@ -39,6 +42,17 @@ async function fetchProfile() {
     fullName.value = data.full_name || ''
   } catch (e) {
     console.error('Error fetching profile:', e)
+  }
+}
+
+async function fetchOAuthAccounts() {
+  try {
+    const { data } = await UserService.getOAuthAccounts()
+    oauthAccounts.value = data
+    oauthFailed.value = false
+  } catch (e) {
+    console.error('Error fetching linked accounts:', e)
+    oauthFailed.value = true
   }
 }
 
@@ -133,7 +147,10 @@ async function handleDeleteAccount() {
   }
 }
 
-onMounted(fetchProfile)
+onMounted(() => {
+  fetchProfile()
+  fetchOAuthAccounts()
+})
 </script>
 
 <template>
@@ -196,7 +213,16 @@ onMounted(fetchProfile)
       <!-- Password Section -->
       <section>
         <h2 class="text-sm font-semibold text-text mb-4">Mot de passe</h2>
-        <div class="p-6 rounded-xl bg-surface border border-border space-y-4">
+        <div
+          v-if="oauthAccounts?.hasPassword === false"
+          class="p-6 rounded-xl bg-surface border border-border"
+        >
+          <p class="text-xs text-text-muted leading-relaxed">
+            Ton compte utilise Google ou GitHub et n'a pas de mot de passe. Pour en définir un,
+            déconnecte-toi puis utilise « Mot de passe oublié » sur la page de connexion.
+          </p>
+        </div>
+        <div v-else class="p-6 rounded-xl bg-surface border border-border space-y-4">
           <div class="space-y-1.5">
             <label class="text-xs font-medium text-text-faint uppercase tracking-wider"
               >Mot de passe actuel</label
@@ -284,6 +310,13 @@ onMounted(fetchProfile)
           </p>
         </div>
       </section>
+
+      <!-- Linked accounts Section -->
+      <LinkedAccounts
+        :accounts="oauthAccounts"
+        :failed="oauthFailed"
+        @refresh="fetchOAuthAccounts"
+      />
 
       <!-- Session Section -->
       <section>

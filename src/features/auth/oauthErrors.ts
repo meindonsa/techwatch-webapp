@@ -20,3 +20,24 @@ export function getOAuthErrorMessage(code: unknown): string {
     ? (OAUTH_ERROR_MESSAGES[code] ?? DEFAULT_MESSAGE)
     : DEFAULT_MESSAGE
 }
+
+/**
+ * Messages pour les codes d'erreur renvoyés dans `/profile?link_error=<code>`
+ * après un échec de liaison d'un compte Google / GitHub depuis le profil.
+ */
+const OAUTH_LINK_ERROR_MESSAGES: Record<string, string> = {
+  already_linked: 'Ce compte est déjà lié à un autre utilisateur de Tech-watch.',
+  provider_already_linked: 'Un compte de ce type est déjà lié au tien.',
+  access_denied: 'Liaison annulée.',
+  invalid_state: 'Le lien a expiré. Réessaie.',
+  not_configured: "Ce mode de connexion n'est pas disponible pour le moment.",
+  provider_error: 'Le service ne répond pas. Réessaie dans un instant.',
+}
+
+const DEFAULT_LINK_MESSAGE = 'Une erreur est survenue lors de la liaison du compte'
+
+export function getOAuthLinkErrorMessage(code: unknown): string {
+  return typeof code === 'string'
+    ? (OAUTH_LINK_ERROR_MESSAGES[code] ?? DEFAULT_LINK_MESSAGE)
+    : DEFAULT_LINK_MESSAGE
+}
